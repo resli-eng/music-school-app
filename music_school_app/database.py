@@ -21,8 +21,13 @@ class User(Base):
     full_name = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relationships
-    student_profile = relationship("StudentProfile", back_populates="user", uselist=False)
+    # Fixed relationships
+    student_profile = relationship(
+        "StudentProfile", 
+        back_populates="user", 
+        uselist=False,
+        foreign_keys="StudentProfile.user_id"
+    )
     parent_profile = relationship("ParentProfile", back_populates="user", uselist=False)
 
 
@@ -34,7 +39,7 @@ class StudentProfile(Base):
     lesson_day = Column(String)  # e.g. "Monday 4:00 PM"
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     
-    # Fixed relationship - explicitly tells SQLAlchemy which foreign key to use
+    # Fixed: explicitly specify which foreign key to use
     user = relationship("User", back_populates="student_profile", foreign_keys=[user_id])
     
     practice_logs = relationship("PracticeLog", back_populates="student")
