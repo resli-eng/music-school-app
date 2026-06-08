@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports • Music School</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-semibold">Reports & Analytics</h1>
+                <p class="text-zinc-400">Manager & Coordinator Tools</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="/dashboard/manager" class="text-sm px-4 py-2 rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">← Back to Dashboard</a>
+                <a href="/logout" class="text-sm px-4 py-2 rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">Log out</a>
+            </div>
+        </div>
+
+        <!-- Report Type Selector -->
+        <div class="flex flex-wrap gap-3 mb-8">
+            <a href="#student-report" class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-2xl text-sm">Student-Specific Report</a>
+            <a href="#school-wide" class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-2xl text-sm">School-Wide Progress</a>
+            <a href="#teacher-progress" class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-2xl text-sm">Teacher's Students Progress</a>
+        </div>
+
+        <!-- 1. Student-Specific Report -->
+        <div id="student-report" class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-8">
+            <h2 class="text-xl font-semibold mb-1">Student-Specific Progress Report</h2>
+            <p class="text-zinc-400 mb-6">View detailed practice history, assignments, and uploads for one student.</p>
+
+            <form method="GET" action="/manager/student-report" class="flex flex-wrap gap-4 items-end mb-6">
+                <div class="flex-1 min-w-[220px]">
+                    <label class="text-xs text-zinc-400 block mb-1.5">Select Student</label>
+                    <select name="student_id" required class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-2.5 text-sm">
+                        {% for s in all_students %}
+                        <option value="{{ s.id }}">{{ s.user.full_name }} — {{ s.lesson_day }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-2.5 rounded-2xl text-sm font-medium">Generate Report</button>
+            </form>
+
+            {% if student_report %}
+            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6">
+                <h3 class="font-semibold text-lg">{{ student_report.student.user.full_name }} — Practice & Homework Report</h3>
+                <div class="text-emerald-400 text-3xl font-semibold mt-1">{{ student_report.total_hours }} hours</div>
+                <div class="text-xs text-zinc-400">Total practice time recorded</div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Practice History -->
+                    <div>
+                        <div class="font-medium mb-3 text-sm">Recent Practice Sessions</div>
+                        {% if student_report.logs %}
+                            <div class="space-y-2 text-sm">
+                                {% for log in student_report.logs[:8] %}
+                                <div class="flex justify-between bg-zinc-900 px-4 py-2 rounded-xl">
+                                    <span>{{ log.date }}</span>
+                                    <span class="font-medium text-emerald-400">{{ log.minutes }} min</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-sm text-zinc-400">No practice logs yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Assignments -->
+                    <div>
+                        <div class="font-medium mb-3 text-sm">Assignments Given</div>
+                        {% if student_report.assignments %}
+                            {% for a in student_report.assignments %}
+                            <div class="mb-3 bg-zinc-900 p-4 rounded-2xl">
+                                <div class="font-medium">{{ a.title }}</div>
+                                <div class="text-xs text-zinc-400">{{ a.week_start }}</div>
+                                <div class="text-xs mt-2 line-clamp-2 text-zinc-300">{{ a.description[:120] }}...</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-sm text-zinc-400">No assignments recorded.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 2. School-Wide Report -->
+        <div id="school-wide" class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-8">
+            <h2 class="text-xl font-semibold mb-1">School-Wide Progress Report</h2>
+            <p class="text-zinc-400 mb-6">Overview of practice activity across all students.</p>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-zinc-950 p-5 rounded-2xl">
+                    <div class="text-xs text-zinc-400">Total Students</div>
+                    <div class="text-4xl font-semibold tracking-tighter mt-1">{{ school_wide.total_students }}</div>
+                </div>
+                <div class="bg-zinc-950 p-5 rounded-2xl">
+                    <div class="text-xs text-zinc-400">Total Practice Hours</div>
+                    <div class="text-4xl font-semibold tracking-tighter mt-1 text-emerald-400">{{ school_wide.total_hours }}</div>
+                </div>
+                <div class="bg-zinc-950 p-5 rounded-2xl">
+                    <div class="text-xs text-zinc-400">Avg Hours per Student</div>
+                    <div class="text-4xl font-semibold tracking-tighter mt-1">{{ school_wide.avg_hours }}</div>
+                </div>
+                <div class="bg-zinc-950 p-5 rounded-2xl">
+                    <div class="text-xs text-zinc-400">Total Assignments Created</div>
+                    <div class="text-4xl font-semibold tracking-tighter mt-1">{{ school_wide.total_assignments }}</div>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-medium mb-3">Top Practicing Students</h4>
+                {% if school_wide.top_students %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-zinc-400 border-b border-zinc-700">
+                                    <th class="text-left py-2 px-4">Student</th>
+                                    <th class="text-left py-2 px-4">Total Hours</th>
+                                    <th class="text-left py-2 px-4">Sessions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in school_wide.top_students %}
+                                <tr class="border-b border-zinc-800">
+                                    <td class="py-3 px-4 font-medium">{{ s.name }}</td>
+                                    <td class="py-3 px-4 text-emerald-400 font-semibold">{{ s.hours }} hrs</td>
+                                    <td class="py-3 px-4">{{ s.sessions }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 3. Teacher Student Progress -->
+        <div id="teacher-progress" class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <h2 class="text-xl font-semibold mb-1">Student Progress by Teacher</h2>
+            <p class="text-zinc-400 mb-6">See how students of a specific teacher are progressing.</p>
+
+            <form method="GET" action="/manager/teacher-report" class="flex gap-4 items-end mb-6">
+                <div class="flex-1">
+                    <label class="text-xs text-zinc-400 block mb-1.5">Select Teacher</label>
+                    <select name="teacher_id" required class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-2.5 text-sm">
+                        {% for t in teachers %}
+                        <option value="{{ t.id }}">{{ t.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-2.5 rounded-2xl text-sm font-medium">Show Students</button>
+            </form>
+
+            {% if teacher_report %}
+            <div>
+                <h3 class="font-semibold mb-4">{{ teacher_report.teacher_name }} — Students Overview</h3>
+                
+                {% if teacher_report.students_data %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-zinc-400 border-b border-zinc-700">
+                                    <th class="text-left py-3 px-4">Student</th>
+                                    <th class="text-left py-3 px-4">Lesson Time</th>
+                                    <th class="text-left py-3 px-4">Total Practice</th>
+                                    <th class="text-left py-3 px-4">Assignments</th>
+                                    <th class="text-left py-3 px-4">Last Practiced</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-800">
+                                {% for s in teacher_report.students_data %}
+                                <tr>
+                                    <td class="py-3 px-4 font-medium">{{ s.name }}</td>
+                                    <td class="py-3 px-4 text-xs">{{ s.lesson_day }}</td>
+                                    <td class="py-3 px-4"><span class="font-semibold text-emerald-400">{{ s.total_hours }}</span> hrs</td>
+                                    <td class="py-3 px-4">{{ s.assignment_count }}</td>
+                                    <td class="py-3 px-4 text-xs text-zinc-400">{{ s.last_practice or '—' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-sm text-zinc-400">No students found for this teacher.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

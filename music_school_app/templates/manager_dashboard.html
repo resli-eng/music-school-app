@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard • Music School</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <div class="max-w-5xl mx-auto p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-semibold">Manager Overview</h1>
+                <p class="text-zinc-400">{{ user.full_name }}</p>
+            </div>
+            <a href="/logout" class="text-sm px-4 py-2 rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">Log out</a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <div class="text-sm text-zinc-400">Total Users</div>
+                <div class="text-5xl font-semibold tracking-tighter mt-2">{{ total_users }}</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <div class="text-sm text-zinc-400">Active Students</div>
+                <div class="text-5xl font-semibold tracking-tighter mt-2">{{ total_students }}</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <div class="text-sm text-zinc-400">Practice Logs Recorded</div>
+                <div class="text-5xl font-semibold tracking-tighter mt-2">{{ total_practice_logs }}</div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <h2 class="font-semibold mb-4">Recently Added Users</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-zinc-400 border-b border-zinc-800">
+                            <th class="text-left py-3 px-4 font-normal">Name</th>
+                            <th class="text-left py-3 px-4 font-normal">Email</th>
+                            <th class="text-left py-3 px-4 font-normal">Role</th>
+                            <th class="text-left py-3 px-4 font-normal">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800">
+                        {% for u in recent_users %}
+                        <tr>
+                            <td class="py-3 px-4 font-medium">{{ u.full_name }}</td>
+                            <td class="py-3 px-4 text-zinc-400">{{ u.email }}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-3 py-1 text-xs rounded-full bg-zinc-800">{{ u.role }}</span>
+                            </td>
+                            <td class="py-3 px-4 text-xs text-zinc-400">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6 text-xs text-zinc-400">
+                Full user management, permission editing, and student/parent linking coming in the next update.
+            </div>
+        </div>
+
+        <!-- Reports Access -->
+        <div class="mt-8 bg-emerald-950 border border-emerald-900 rounded-3xl p-8 text-center">
+            <h3 class="font-semibold text-emerald-400 mb-2">Need Reports?</h3>
+            <p class="text-sm text-emerald-300/80 mb-4 max-w-md mx-auto">Generate student-specific progress reports, school-wide analytics, and teacher performance overviews.</p>
+            <a href="/manager/reports" 
+               class="inline-block bg-emerald-600 hover:bg-emerald-500 transition-colors px-8 py-3 rounded-2xl font-medium text-sm">
+                Open Reports Dashboard →
+            </a>
+        </div>
+
+        <div class="mt-6 text-center">
+            <p class="text-xs text-zinc-500">This is the Manager view. More powerful admin tools will be added soon.</p>
+        </div>
+    </div>
+</body>
+</html>

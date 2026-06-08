@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • Music School</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#eef0f2] text-[#1f2937]">
+    <div class="min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-600 rounded-2xl mb-4">
+                    <span class="text-3xl">🎵</span>
+                </div>
+                <h1 class="text-3xl font-semibold tracking-tight">Music School</h1>
+                <p class="text-zinc-400 mt-2">Practice tracking & assignment portal</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-xl">
+                <h2 class="text-xl font-semibold mb-6">Sign in to your account</h2>
+                
+                {% if error %}
+                <div class="mb-4 p-3 bg-red-950 border border-red-900 text-red-400 rounded-2xl text-sm">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="/login" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Email address</label>
+                        <input type="email" name="email" required 
+                               class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-600 transition-colors"
+                               placeholder="you@school.com">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-400 mb-1.5">Password</label>
+                        <input type="password" name="password" required 
+                               class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-600 transition-colors"
+                               placeholder="••••••••">
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-emerald-600 hover:bg-emerald-500 transition-colors text-white font-medium py-3.5 rounded-2xl mt-2">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-zinc-800 text-center">
+                    <p class="text-xs text-zinc-500">Demo accounts available in README.md</p>
+                    <a href="/register" class="text-emerald-400 hover:underline text-sm mt-2 inline-block">Create a new student or parent account →</a>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-zinc-500 mt-8">
+                Built for your music school • Practice tracking made simple
+            </p>
+        </div>
+    </div>
+</body>
+</html>

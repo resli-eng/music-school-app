@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard • Music School</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <div class="max-w-5xl mx-auto p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-semibold">Parent Dashboard</h1>
+                <p class="text-zinc-400">{{ user.full_name }} • Viewing {{ student.user.full_name if student else 'your child' }}</p>
+            </div>
+            <a href="/logout" class="text-sm px-4 py-2 rounded-2xl border border-zinc-800 hover:bg-zinc-900 transition-colors">Log out</a>
+        </div>
+
+        {% if not student %}
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+                <p>No student is currently linked to your account. Please contact the school office.</p>
+            </div>
+        {% else %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Practice Overview -->
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h2 class="font-semibold mb-1">Practice Hours</h2>
+                <div class="text-5xl font-semibold tracking-tighter text-emerald-400 mt-3">{{ total_hours }}</div>
+                <div class="text-sm text-zinc-400">total hours this period</div>
+                
+                <div class="mt-6 text-xs text-zinc-400">Your child is doing great! Consistent practice leads to faster progress.</div>
+            </div>
+
+            <!-- Current Assignments -->
+            <div class="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h2 class="font-semibold mb-4">Current Weekly Assignment</h2>
+                
+                {% if assignments %}
+                    {% for assignment in assignments[:1] %}
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-5">
+                        <div class="font-medium">{{ assignment.title }}</div>
+                        <div class="text-xs text-zinc-500 mt-0.5">Week of {{ assignment.week_start }}</div>
+                        
+                        <p class="text-sm mt-3 text-zinc-300 whitespace-pre-line">{{ assignment.description }}</p>
+                        
+                        {% if assignment.youtube_links %}
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            {% for link in assignment.youtube_links.split(',') %}
+                            <a href="{{ link.strip() }}" target="_blank" class="text-xs bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-2xl text-emerald-400">Watch helpful video →</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-sm text-zinc-400">No current assignment.</p>
+                {% endif %}
+            </div>
+
+            <!-- Recent Practice Activity -->
+            <div class="lg:col-span-3 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h2 class="font-semibold mb-4">Recent Practice Activity</h2>
+                
+                {% if logs %}
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {% for log in logs[:6] %}
+                        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+                            <div class="text-xs text-zinc-400">{{ log.date }}</div>
+                            <div class="mt-1 flex items-baseline gap-1">
+                                <span class="text-2xl font-semibold text-emerald-400">{{ log.minutes }}</span>
+                                <span class="text-xs text-zinc-500">min</span>
+                            </div>
+                            {% if log.notes %}
+                            <div class="text-xs text-zinc-400 mt-2 line-clamp-2">{{ log.notes }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-zinc-400">No practice logged yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Uploads & Progress -->
+            <div class="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h2 class="font-semibold mb-4">Progress Uploads from {{ student.user.full_name.split()[0] }}</h2>
+                
+                {% if uploads %}
+                    <div class="space-y-3">
+                        {% for upload in uploads[:5] %}
+                        <div class="flex items-center justify-between bg-zinc-950 px-4 py-3 rounded-2xl text-sm">
+                            <div>
+                                <div class="font-medium truncate max-w-[280px]">{{ upload.file_path.split('/')[-1] }}</div>
+                                {% if upload.description %}<div class="text-xs text-zinc-400">{{ upload.description }}</div>{% endif %}
+                            </div>
+                            <div class="text-xs text-zinc-500">{{ upload.uploaded_at.strftime('%b %d') }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-zinc-400">No progress uploads yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Message Teacher -->
+            <div class="lg:col-span-1 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+                <h2 class="font-semibold mb-4">Message Teacher</h2>
+                
+                <form method="POST" action="/parent/send-message" class="space-y-3">
+                    <textarea name="content" rows="4" required placeholder="Hi Ms. Chen, I noticed Liam has been really enjoying the new piece..." 
+                              class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm resize-y"></textarea>
+                    <button type="submit" 
+                            class="w-full bg-white text-zinc-950 hover:bg-zinc-200 transition-colors py-2.5 rounded-2xl text-sm font-medium">
+                        Send Message
+                    </button>
+                </form>
+                
+                <div class="text-[10px] text-zinc-500 mt-3">Your message will go directly to the teacher.</div>
+            </div>
+
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
