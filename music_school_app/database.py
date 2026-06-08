@@ -1,8 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, Float
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
-import os
 
 # Database setup
 DATABASE_URL = "sqlite:///./music_school.db"
@@ -10,7 +9,8 @@ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Models
+# ==================== MODELS ====================
+
 class User(Base):
     __tablename__ = "users"
     
@@ -25,6 +25,7 @@ class User(Base):
     student_profile = relationship("StudentProfile", back_populates="user", uselist=False)
     parent_profile = relationship("ParentProfile", back_populates="user", uselist=False)
 
+
 class StudentProfile(Base):
     __tablename__ = "student_profiles"
     
@@ -33,10 +34,13 @@ class StudentProfile(Base):
     lesson_day = Column(String)  # e.g. "Monday 4:00 PM"
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     
-    user = relationship("User", back_populates="student_profile")
+    # Fixed relationship - explicitly tells SQLAlchemy which foreign key to use
+    user = relationship("User", back_populates="student_profile", foreign_keys=[user_id])
+    
     practice_logs = relationship("PracticeLog", back_populates="student")
     assignments = relationship("Assignment", back_populates="student")
     parent_links = relationship("ParentStudentLink", back_populates="student")
+
 
 class ParentProfile(Base):
     __tablename__ = "parent_profiles"
@@ -72,20 +76,22 @@ class PracticeLog(Base):
     
     student = relationship("StudentProfile", back_populates="practice_logs")
 
+
 class Assignment(Base):
     __tablename__ = "assignments"
     
     id = Column(Integer, primary_key=True, index=True)
     teacher_id = Column(Integer, ForeignKey("users.id"))
     student_id = Column(Integer, ForeignKey("student_profiles.id"))
-    week_start = Column(String)  # e.g. "2026-06-08"
+    week_start = Column(String)
     title = Column(String)
     description = Column(Text)
-    youtube_links = Column(Text, nullable=True)  # comma separated or JSON
+    youtube_links = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     student = relationship("StudentProfile", back_populates="assignments")
     uploads = relationship("StudentUpload", back_populates="assignment")
+
 
 class StudentUpload(Base):
     __tablename__ = "student_uploads"
@@ -99,19 +105,23 @@ class StudentUpload(Base):
     
     assignment = relationship("Assignment", back_populates="uploads")
 
+
 class Message(Base):
     __tablename__ = "messages"
     
     id = Column(Integer, primary_key=True, index=True)
     sender_id = Column(Integer, ForeignKey("users.id"))
     recipient_id = Column(Integer, ForeignKey("users.id"))
-    student_id = Column(Integer, ForeignKey("student_profiles.id"), nullable=True)  # context
+    student_id = Column(Integer, ForeignKey("student_profiles.id"), nullable=True)
     content = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-# Create tables
+
+# ==================== DATABASE FUNCTIONS ====================
+
 def create_tables():
     Base.metadata.create_all(bind=engine)
+
 
 def get_db():
     db = SessionLocal()
