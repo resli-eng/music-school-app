@@ -1,17 +1,13 @@
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from datetime import datetime
 import os
-import shutil
 from typing import Optional
 
-from database import (
-    create_tables, get_db, User, StudentProfile, ParentProfile,
-    PracticeLog, Assignment, StudentUpload, Message, SessionLocal
-)
+from database import create_tables, get_db, User, StudentProfile, ParentProfile, PracticeLog, Assignment, SessionLocal
 
 app = FastAPI(title="Music School App")
 templates = Jinja2Templates(directory="templates")
@@ -43,12 +39,16 @@ def seed_demo_data():
     ]
 
     for u in users_data:
-        user = User(email=u["email"], password_hash=hash_password(u["password"]), role=u["role"], full_name=u["full_name"])
+        user = User(
+            email=u["email"],
+            password_hash=hash_password(u["password"]),
+            role=u["role"],
+            full_name=u["full_name"]
+        )
         db.add(user)
     db.commit()
-
-    # Add demo student, parent, logs, etc. (same as before)
     db.close()
+    print("Demo data seeded successfully!")
 
 seed_demo_data()
 
@@ -82,9 +82,6 @@ async def logout():
     response = RedirectResponse(url="/login")
     response.delete_cookie("user_id")
     return response
-
-# Add other routes (student_dashboard, teacher_dashboard, etc.) here if needed...
-# For now, upload this and test login first.
 
 if __name__ == "__main__":
     import os
